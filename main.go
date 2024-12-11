@@ -29,8 +29,8 @@ func main() {
 		os.Exit(1)
 	}
 
-	http.HandleFunc("/api/dishes", handleDishes)        // GET all dishes, POST new dish
-	http.HandleFunc("/api/dishes/", handleDishByID)     // GET, PUT, DELETE dish by ID
+	http.HandleFunc("/api/dishes", corsMiddleware(handleDishes))    // GET all dishes, POST new dish
+	http.HandleFunc("/api/dishes/", corsMiddleware(handleDishByID)) // GET, PUT, DELETE dish by ID
 
 	// Start the server
 	fmt.Println("Server running on http://localhost:8080")
@@ -63,6 +63,23 @@ func getNextID() int {
 		}
 	}
 	return maxID + 1
+}
+
+// CORS Middleware
+func corsMiddleware(next http.HandlerFunc) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Access-Control-Allow-Origin", "http://localhost:5173") // Allow frontend origin
+		w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
+		w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization")
+
+		// Handle preflight requests
+		if r.Method == "OPTIONS" {
+			w.WriteHeader(http.StatusOK)
+			return
+		}
+
+		next(w, r)
+	}
 }
 
 func handleDishes(w http.ResponseWriter, r *http.Request) {
