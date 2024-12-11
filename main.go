@@ -78,6 +78,8 @@ func corsMiddleware(next http.HandlerFunc) http.HandlerFunc {
 
 		// Handle preflight requests (OPTIONS requests)
 		if r.Method == "OPTIONS" {
+			w.Header().Set("Access-Control-Allow-Origin", "*")
+			w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
 			w.WriteHeader(http.StatusOK)
 			return
 		}
@@ -86,6 +88,7 @@ func corsMiddleware(next http.HandlerFunc) http.HandlerFunc {
 		next(w, r)
 	}
 }
+
 
 
 
